@@ -74,6 +74,20 @@ class Person:
             print("    " + str(i) + ":", item)
             i += 1
 
+    def choose_enemy_spell(self):
+        magic_choice = random.randrange(0, len(self.magic))
+        spell = self.magic[magic_choice]
+        magic_dmg = spell.generate_dmg()
+
+        perc = self.hp / self.maxhp * 100
+
+        if self.mp < spell.cost or spell.type == "Healing" and perc > 50:
+            self.choose_enemy_spell()
+        else:
+            return spell, magic_dmg
+
+
+
     def choose_spell(self):
         i = 1
         print("Magic")
@@ -93,25 +107,95 @@ class Person:
                   str(item["item"].description) + "(x" + str(item["quantity"]) + ")")
             i += 1
 
+    def get_enemy_stats(self):
+        hp_bar = ""
+        bar_num = (self.hp / self.maxhp) * (100/2)
+
+        while bar_num > 0:
+            hp_bar += "█"
+            bar_num -= 1
+
+        while len(hp_bar) < 50:
+            hp_bar += " "
+
+        hp_string = str(self.hp) + "/" + str(self.maxhp)
+        current_hp = ""
+
+        if len(hp_string) < 9:
+            decrease = 9 - len(hp_string)
+
+            while decrease > 0:
+                current_hp += " "
+                decrease -= 1
+
+            current_hp += hp_string
+        else:
+            current_hp += hp_string
+
+        print(
+            bcolors.BOLD + bcolors.FAIL + self.name + bcolors.ENDC + "   " +
+            current_hp + "   |" + bcolors.FAIL + hp_bar + bcolors.ENDC + "|   ")
+
+    def choose_target(self, enemies):
+        i = 1
+        print(bcolors.FAIL + bcolors.BOLD + "TARGET:" + bcolors.ENDC)
+        for enemy in enemies:
+            if enemy.get_hp() != 0:
+                print("    " + str(i) + ".", enemy.name)
+                i += 1
+        choice = int(input("Choose target:")) - 1
+        return choice
+
     def get_stats(self):
         hp_bar = ""
         bar_num = (self.hp / self.maxhp) * (100 / 4)
 
         mp_bar = ""
-        bar_num_mp = (self.mp / self.maxmp) * (100 / 4)
+        bar_num_mp = (self.mp / self.maxmp) * (100 / 10)
+
         while bar_num > 0:
             hp_bar += "█"
             bar_num -= 1
-            mp_bar += "█"
-            bar_num_mp -= 1
 
         while len(hp_bar) < 25:
             hp_bar += " "
+
+        while bar_num_mp > 0:
+            mp_bar += "█"
+            bar_num_mp -= 1
+
+        while len(mp_bar) < 10:
             mp_bar += " "
+
+        hp_string = str(self.hp) + "/" + str(self.maxhp)
+        current_hp = ""
+
+        if len(hp_string) < 9:
+            decrease = 9 - len(hp_string)
+
+            while decrease > 0:
+                current_hp += " "
+                decrease -= 1
+
+            current_hp += hp_string
+        else:
+            current_hp += hp_string
+
+        mp_string = str(self.mp) + "/" + str(self.maxmp)
+        current_mp = ""
+
+        if len(mp_string) < 7:
+            decrease = 7 - len(mp_string)
+
+            while decrease > 0:
+                current_mp += " "
+                decrease -= 1
+
+            current_mp += mp_string
+        else:
+            current_mp += mp_string
 
         print(
             bcolors.BOLD + self.name + "   " +
-            str(self.hp) + "/" + str(self.maxhp) + "   |" + bcolors.GREEN +
-            hp_bar + bcolors.ENDC +
-            "|   " + str(self.mp) + "/" + str(self.maxmp) +
-            "  |" + bcolors.BLUE + mp_bar + bcolors.ENDC + "|")
+            current_hp + "   |" + bcolors.GREEN + hp_bar + bcolors.ENDC + "|   " +
+            current_mp + "  |" + bcolors.BLUE + mp_bar + bcolors.ENDC + "|")
